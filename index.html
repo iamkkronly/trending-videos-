@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Top 50 Trending YouTube Videos</title>
+    <script>
+        const API_KEY = 'AIzaSyBafsRsQlmkUsa63ONPfmNJOL1XcgaTaRA';  // Replace with your YouTube API Key
+        let REGION_CODE = 'IN';  // Default region
+        let CATEGORY_ID = '';  // Default: All categories
+        const MAX_RESULTS = 50;  // Fetch only 50 trending videos
+
+        function fetchTrendingVideos() {
+            let url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=${REGION_CODE}&maxResults=${MAX_RESULTS}&key=${API_KEY}`;
+            
+            if (CATEGORY_ID) {
+                url += `&videoCategoryId=${CATEGORY_ID}`;
+            }
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    let videosHTML = '';
+
+                    data.items.forEach(video => {
+                        videosHTML += `
+                            <div class="video">
+                                <iframe width="100%" height="200" src="https://www.youtube.com/embed/${video.id}" frameborder="0" allowfullscreen></iframe>
+                                <h3>${video.snippet.title}</h3>
+                                <p>Views: ${video.statistics.viewCount}</p>
+                            </div>
+                        `;
+                    });
+
+                    document.getElementById('videos').innerHTML = videosHTML;
+                })
+                .catch(error => console.error('Error fetching YouTube data:', error));
+        }
+
+        function updateVideos() {
+            REGION_CODE = document.getElementById('regionSelect').value;
+            CATEGORY_ID = document.getElementById('categorySelect').value;
+            document.getElementById('videos').innerHTML = 'Loading...';
+            fetchTrendingVideos();
+        }
+
+        window.onload = fetchTrendingVideos;
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .video {
+            width: 30%;
+            margin: 10px;
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        @media (max-width: 600px) {
+            .video {
+                width: 100%;
+            }
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Top 50 Trending YouTube Videos</h1>
+    
+    <label for="regionSelect">Select Region:</label>
+    <select id="regionSelect" onchange="updateVideos()">
+        <option value="IN" selected>India</option>
+        <option value="US">United States</option>
+        <option value="GB">United Kingdom</option>
+        <option value="CA">Canada</option>
+        <option value="AU">Australia</option>
+        <option value="DE">Germany</option>
+        <option value="FR">France</option>
+        <option value="BR">Brazil</option>
+        <option value="JP">Japan</option>
+    </select>
+
+    <label for="categorySelect">Select Category:</label>
+    <select id="categorySelect" onchange="updateVideos()">
+        <option value="" selected>All Categories</option>
+        <option value="1">Film & Animation</option>
+        <option value="2">Autos & Vehicles</option>
+        <option value="10">Music</option>
+        <option value="15">Pets & Animals</option>
+        <option value="17">Sports</option>
+        <option value="20">Gaming</option>
+        <option value="22">People & Blogs</option>
+        <option value="23">Comedy</option>
+        <option value="24">Entertainment</option>
+        <option value="25">News & Politics</option>
+        <option value="26">How-to & Style</option>
+        <option value="28">Science & Technology</option>
+    </select>
+
+    <div id="videos">Loading...</div>
+</body>
+</html>
